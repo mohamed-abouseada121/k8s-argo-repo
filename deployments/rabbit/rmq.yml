@@ -2,8 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: rabbitmq
-  labels:
-    app: rabbitmq
 spec:
   replicas: 1
   selector:
@@ -14,26 +12,37 @@ spec:
       labels:
         app: rabbitmq
     spec:
+
+      securityContext:
+        fsGroup: 1000
+
+      initContainers:
+        - name: setup-user
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+              echo "Creating user...";
+              addgroup -g 1000 rabbituser;
+              adduser -D -u 1000 -G rabbituser rabbituser;
+              chown -R rabbituser:rabbituser /var/lib/rabbitmq
+          volumeMounts:
+            - name: rabbitmq-data
+              mountPath: /var/lib/rabbitmq
+
       containers:
-        - name: rabbitmq
-          image: rabbitmq:management-alpine
-          env:
-            - name: RABBITMQ_DEFAULT_USER
-              valueFrom:
-                secretKeyRef:
-                  name: rabbitmq-secret
-                  key: username
-
-            - name: RABBITMQ_DEFAULT_PASS
-              valueFrom:
-                secretKeyRef:
-                  name: rabbitmq-secret
-                  key: password
-
+        - image: rabbitmq:3.11-management
+          name: rabbitmq
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
           ports:
-            - containerPort: 5672   # AMQP
-            - containerPort: 15672  # Management UI
-
+            - containerPort: 5672
+            - containerPort: 15672
+          volumeMounts:
+            - name: rabbitmq-data
+              mountPath: /var/lib/rabbitmq
           resources:
             limits:
               cpu: "500m"
@@ -41,6 +50,10 @@ spec:
             requests:
               cpu: "200m"
               memory: "256Mi"
+
+      volumes:
+        - name: rabbitmq-data
+          emptyDir: {}
 
 ---
 apiVersion: v1
