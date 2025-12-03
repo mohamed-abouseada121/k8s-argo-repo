@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: memcache
+  labels:
+    app: memcache
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: memcache
+  template:
+    metadata:
+      labels:
+        app: memcache
+    spec:
+      tolerations:
+        - key: "node-role.kubernetes.io/control-plane"
+          operator: "Exists"
+          effect: "NoSchedule"
+      containers:
+        - name: memcache
+          image: memcached:trixie
+          ports:
+            - containerPort: 11211
+          resources:
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: memcache
+spec:
+  selector:
+    app: memcache
+  ports:
+    - port: 11211
+      targetPort: 11211
+

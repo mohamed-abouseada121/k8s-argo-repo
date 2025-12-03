@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  application.properties: |
+    # JDBC Configutation for Database Connection
+    jdbc.driverClassName=com.mysql.jdbc.Driver
+    jdbc.url=jdbc:mysql://mariadb-service:3306/accounts?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
+    jdbc.username=admin
+    jdbc.password=admin123
+
+    # Memcached Configuration For Active and StandBy Host
+    memcached.active.host=memcache
+    memcached.active.port=11211
+    memcached.standBy.host=memcache
+    memcached.standBy.port=11211
+
+    # RabbitMq Configuration
+    rabbitmq.address=rabbitmq
+    rabbitmq.port=5672
+    rabbitmq.username=test
+    rabbitmq.password=test
+
+    # Elasticsearch Configuration
+    elasticsearch.host=elasticsearch-service
+    elasticsearch.port=9300
+    elasticsearch.cluster=vprofile
+    elasticsearch.node=vprofilenode
+
