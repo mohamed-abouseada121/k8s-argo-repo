@@ -14,10 +14,6 @@ spec:
       labels:
         app: memcache
     spec:
-      tolerations:
-        - key: "node-role.kubernetes.io/control-plane"
-          operator: "Exists"
-          effect: "NoSchedule"
       containers:
         - name: memcache
           image: memcached:trixie
